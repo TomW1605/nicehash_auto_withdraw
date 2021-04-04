@@ -142,12 +142,6 @@ class private_api:
         response_json['reason'] = response.reason
 
         return response_json
-        '''if response.status_code == 200:
-            return response.json()
-        elif response.content:
-            raise Exception(str(response.status_code) + ": " + response.reason + ": " + str(response.content))
-        else:
-            raise Exception(str(response.status_code) + ": " + response.reason)'''
 
     def get_epoch_ms_from_now(self):
         now = datetime.now()
@@ -171,8 +165,12 @@ class private_api:
     def get_accounts_for_currency(self, currency):
         return self.request('GET', '/main/api/v2/accounting/account2/'+currency, '', None)
 
-    def get_withdrawal_addresses(self, currency, size, page):
+    def get_deposit_addresses(self, currency):
+        params = "currency={}".format(currency)
 
+        return self.request('GET', '/main/api/v2/accounting/depositAddresses', params, None)
+
+    def get_withdrawal_addresses(self, currency, size, page):
         params = "currency={}&size={}&page={}".format(currency, size, page)
 
         return self.request('GET', '/main/api/v2/accounting/withdrawalAddresses/', params, None)
@@ -188,8 +186,10 @@ class private_api:
         }
         return self.request('POST', '/main/api/v2/accounting/withdrawal/', '', withdraw_data)
 
-    def get_my_active_orders(self, algorithm, market, limit):
+    def get_mining_rigs(self):
+        return self.request('GET', '/main/api/v2/mining/rigs2', '', None)
 
+    def get_my_active_orders(self, algorithm, market, limit):
         ts = self.get_epoch_ms_from_now()
         params = "algorithm={}&market={}&ts={}&limit={}&op=LT".format(algorithm, market, ts, limit)
 
@@ -213,7 +213,6 @@ class private_api:
         return self.request('GET', '/main/api/v2/pools/', '', None)
 
     def create_hashpower_order(self, market, type, algorithm, price, limit, amount, pool_id, algo_response):
-
         algo_setting = self.algo_settings_from_response(algorithm, algo_response)
 
         order_data = {
@@ -239,7 +238,6 @@ class private_api:
         return self.request('POST', '/main/api/v2/hashpower/order/'+order_id+'/refill/', '', refill_data)
 
     def set_price_hashpower_order(self, order_id, price, algorithm, algo_response):
-
         algo_setting = self.algo_settings_from_response(algorithm, algo_response)
 
         price_data = {
