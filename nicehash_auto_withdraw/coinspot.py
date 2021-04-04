@@ -1,12 +1,11 @@
-import hmac
 import hashlib
+import hmac
 import http.client
 import json
+import logging
 import os
 import sys
-import logging
 from time import time, strftime
-
 
 class CoinSpot:
     endpoint = "www.coinspot.com.au"
@@ -22,7 +21,7 @@ class CoinSpot:
             self.start_logging()
 
     def start_logging(self):
-        logging.basicConfig(filename=os.path.realpath(os.path.dirname(sys.argv[0])) + "/" + self.logging, level=logging.DEBUG)
+        logging.basicConfig(filename=os.path.realpath(os.path.dirname(sys.argv[0]))+"/"+self.logging, level=logging.DEBUG)
 
     def _get_signed_request(self, data):
         return hmac.new(self.secret.encode('utf-8'), data.encode('utf-8'), hashlib.sha512).hexdigest()
@@ -38,7 +37,7 @@ class CoinSpot:
         headers['key'] = self.key
         headers['sign'] = signedMessage
         if self.debug:
-            logging.warning(self.timestamp + " " + str(headers))
+            logging.warning(self.timestamp+" "+str(headers))
         conn = http.client.HTTPSConnection(self.endpoint)
         if self.debug:
             conn.set_debuglevel(1)
@@ -47,18 +46,18 @@ class CoinSpot:
             conn.request("POST", path, params, headers)
             response = conn.getresponse()
             if self.debug:
-                logging.warning(self.timestamp + " " + str(response))
-                logging.warning(self.timestamp + " " + str(response.msg))
-            #print response.status, response.reason
+                logging.warning(self.timestamp+" "+str(response))
+                logging.warning(self.timestamp+" "+str(response.msg))
+            # print response.status, response.reason
             response_data = response.read().decode("utf-8")
             if self.debug:
-                logging.warning(self.timestamp + " " + str(response_data))
+                logging.warning(self.timestamp+" "+str(response_data))
             conn.close()
         except IOError as error:
             if self.debug:
                 error_text = "Attempting to make request I/O error({0}): {1}".format(error.errno, error.strerror)
-                logging.warning(self.timestamp + " " + error_text)
-                response_data = '{"status":"invalid","error": "' + error_text + '"}'
+                logging.warning(self.timestamp+" "+error_text)
+                response_data = '{"status":"invalid","error": "'+error_text+'"}'
         except:
             exit("Unexpected error: {0}".format(sys.exc_info()[0]))
 
@@ -76,7 +75,7 @@ class CoinSpot:
         :return:
             - **status** - ok, error
         """
-        request_data = {'cointype':cointype, 'address':address, 'amount':amount}
+        request_data = {'cointype': cointype, 'address': address, 'amount': amount}
         return self._request('/api/my/coin/send', request_data)
 
     def coindeposit(self, cointype):
@@ -88,7 +87,7 @@ class CoinSpot:
             - **status** - ok, error
             - **address** - your deposit address for the coin
         """
-        request_data = {'cointype':cointype}
+        request_data = {'cointype': cointype}
         return self._request('/api/my/coin/deposit', request_data)
 
     def quotebuy(self, cointype, amount):
@@ -104,7 +103,7 @@ class CoinSpot:
             - **quote** - the rate per coin
             - **timeframe** - estimate of hours to wait for trade to complete (0 = immediate trade)
         """
-        request_data = {'cointype':cointype, 'amount':amount}
+        request_data = {'cointype': cointype, 'amount': amount}
         return self._request('/api/quote/buy', request_data)
 
     def quotesell(self, cointype, amount):
@@ -120,9 +119,8 @@ class CoinSpot:
             - **quote** - the rate per coin
             - **timeframe** - estimate of hours to wait for trade to complete (0 = immediate trade)
         """
-        request_data = {'cointype':cointype, 'amount':amount}
+        request_data = {'cointype': cointype, 'amount': amount}
         return self._request('/api/quote/sell', request_data)
-
 
     def spot(self):
         """
@@ -151,7 +149,7 @@ class CoinSpot:
             - **status** - ok, error
             - **orders** - list of the last 1000 completed orders
         """
-        request_data = {'cointype':cointype}
+        request_data = {'cointype': cointype}
         return self._request('/api/orders/history', request_data)
 
     def orders(self, cointype):
@@ -164,7 +162,7 @@ class CoinSpot:
             - **buyorders** - array containing all the open buy orders
             - **sellorders** - array containing all the open sell orders
         """
-        request_data = {'cointype':cointype}
+        request_data = {'cointype': cointype}
         return self._request('/api/orders', request_data)
 
     def myorders(self):
@@ -189,7 +187,7 @@ class CoinSpot:
         :return:
             - **status** - ok, error
         """
-        request_data = {'cointype':cointype, 'amount':amount, 'rate':rate}
+        request_data = {'cointype': cointype, 'amount': amount, 'rate': rate}
         return self._request('/api/my/buy', request_data)
 
     def sell(self, cointype, amount, rate):
@@ -204,5 +202,5 @@ class CoinSpot:
         :return:
             - **status** - ok, error
         """
-        request_data = {'cointype':cointype, 'amount':amount, 'rate':rate}
+        request_data = {'cointype': cointype, 'amount': amount, 'rate': rate}
         self._request('/api/my/sell', request_data)

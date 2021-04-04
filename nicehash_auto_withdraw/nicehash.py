@@ -1,12 +1,11 @@
-from datetime import datetime
-from time import mktime
-import uuid
 import hmac
-import requests
 import json
+import uuid
+from datetime import datetime
 from hashlib import sha256
-import optparse
+from time import mktime
 
+import requests
 
 class public_api:
 
@@ -15,9 +14,9 @@ class public_api:
         self.verbose = verbose
 
     def request(self, method, path, query, body):
-        url = self.host + path
+        url = self.host+path
         if query:
-            url += '?' + query
+            url += '?'+query
 
         if self.verbose:
             print(method, url)
@@ -32,9 +31,9 @@ class public_api:
         if response.status_code == 200:
             return response.json()
         elif response.content:
-            raise Exception(str(response.status_code) + ": " + response.reason + ": " + str(response.content))
+            raise Exception(str(response.status_code)+": "+response.reason+": "+str(response.content))
         else:
-            raise Exception(str(response.status_code) + ": " + response.reason)
+            raise Exception(str(response.status_code)+": "+response.reason)
 
     def get_current_global_stats(self):
         return self.request('GET', '/main/api/v2/public/stats/global/current/', '', None)
@@ -67,7 +66,7 @@ class public_api:
         return self.request('GET', '/exchange/api/v2/info/status', '', None)
 
     def get_exchange_trades(self, market):
-        return self.request('GET', '/exchange/api/v2/trades', 'market=' + market, None)
+        return self.request('GET', '/exchange/api/v2/trades', 'market='+market, None)
 
     def get_candlesticks(self, market, from_s, to_s, resolution):
         return self.request('GET', '/exchange/api/v2/candlesticks', "market={}&from={}&to={}&resolution={}".format(market, from_s, to_s, resolution), None)
@@ -111,7 +110,7 @@ class private_api:
             message += bytearray(body_json, 'utf-8')
 
         digest = hmac.new(bytearray(self.secret, 'utf-8'), message, sha256).hexdigest()
-        xauth = self.key + ":" + digest
+        xauth = self.key+":"+digest
 
         headers = {
             'X-Time': str(xtime),
@@ -125,9 +124,9 @@ class private_api:
         s = requests.Session()
         s.headers = headers
 
-        url = self.host + path
+        url = self.host+path
         if query:
-            url += '?' + query
+            url += '?'+query
 
         if self.verbose:
             print(method, url)
@@ -152,8 +151,8 @@ class private_api:
 
     def get_epoch_ms_from_now(self):
         now = datetime.now()
-        now_ec_since_epoch = mktime(now.timetuple()) + now.microsecond / 1000000.0
-        return int(now_ec_since_epoch * 1000)
+        now_ec_since_epoch = mktime(now.timetuple())+now.microsecond/1000000.0
+        return int(now_ec_since_epoch*1000)
 
     def algo_settings_from_response(self, algorithm, algo_response):
         algo_setting = None
@@ -170,7 +169,7 @@ class private_api:
         return self.request('GET', '/main/api/v2/accounting/accounts2/', '', None)
 
     def get_accounts_for_currency(self, currency):
-        return self.request('GET', '/main/api/v2/accounting/account2/' + currency, '', None)
+        return self.request('GET', '/main/api/v2/accounting/account2/'+currency, '', None)
 
     def get_withdrawal_addresses(self, currency, size, page):
 
@@ -208,7 +207,7 @@ class private_api:
         return self.request('POST', '/main/api/v2/pool/', '', pool_data)
 
     def delete_pool(self, pool_id):
-        return self.request('DELETE', '/main/api/v2/pool/' + pool_id, '', None)
+        return self.request('DELETE', '/main/api/v2/pool/'+pool_id, '', None)
 
     def get_my_pools(self, page, size):
         return self.request('GET', '/main/api/v2/pools/', '', None)
@@ -231,13 +230,13 @@ class private_api:
         return self.request('POST', '/main/api/v2/hashpower/order/', '', order_data)
 
     def cancel_hashpower_order(self, order_id):
-        return self.request('DELETE', '/main/api/v2/hashpower/order/' + order_id, '', None)
+        return self.request('DELETE', '/main/api/v2/hashpower/order/'+order_id, '', None)
 
     def refill_hashpower_order(self, order_id, amount):
         refill_data = {
             "amount": amount
         }
-        return self.request('POST', '/main/api/v2/hashpower/order/' + order_id + '/refill/', '', refill_data)
+        return self.request('POST', '/main/api/v2/hashpower/order/'+order_id+'/refill/', '', refill_data)
 
     def set_price_hashpower_order(self, order_id, price, algorithm, algo_response):
 
@@ -248,7 +247,7 @@ class private_api:
             "marketFactor": algo_setting['marketFactor'],
             "displayMarketFactor": algo_setting['displayMarketFactor']
         }
-        return self.request('POST', '/main/api/v2/hashpower/order/' + order_id + '/updatePriceAndLimit/', '',
+        return self.request('POST', '/main/api/v2/hashpower/order/'+order_id+'/updatePriceAndLimit/', '',
                             price_data)
 
     def set_limit_hashpower_order(self, order_id, limit, algorithm, algo_response):
@@ -258,7 +257,7 @@ class private_api:
             "marketFactor": algo_setting['marketFactor'],
             "displayMarketFactor": algo_setting['displayMarketFactor']
         }
-        return self.request('POST', '/main/api/v2/hashpower/order/' + order_id + '/updatePriceAndLimit/', '',
+        return self.request('POST', '/main/api/v2/hashpower/order/'+order_id+'/updatePriceAndLimit/', '',
                             limit_data)
 
     def set_price_and_limit_hashpower_order(self, order_id, price, limit, algorithm, algo_response):
@@ -270,14 +269,14 @@ class private_api:
             "marketFactor": algo_setting['marketFactor'],
             "displayMarketFactor": algo_setting['displayMarketFactor']
         }
-        return self.request('POST', '/main/api/v2/hashpower/order/' + order_id + '/updatePriceAndLimit/', '',
+        return self.request('POST', '/main/api/v2/hashpower/order/'+order_id+'/updatePriceAndLimit/', '',
                             price_data)
 
     def get_my_exchange_orders(self, market):
-        return self.request('GET', '/exchange/api/v2/myOrders', 'market=' + market, None)
+        return self.request('GET', '/exchange/api/v2/myOrders', 'market='+market, None)
 
     def get_my_exchange_trades(self, market):
-        return self.request('GET','/exchange/api/v2/myTrades', 'market=' + market, None)
+        return self.request('GET', '/exchange/api/v2/myTrades', 'market='+market, None)
 
     def create_exchange_limit_order(self, market, side, quantity, price):
         query = "market={}&side={}&type=limit&quantity={}&price={}".format(market, side, quantity, price)
@@ -294,4 +293,3 @@ class private_api:
     def cancel_exchange_order(self, market, order_id):
         query = "market={}&orderId={}".format(market, order_id)
         return self.request('DELETE', '/exchange/api/v2/order', query, None)
-

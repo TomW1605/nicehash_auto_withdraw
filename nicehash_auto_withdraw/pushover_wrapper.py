@@ -1,4 +1,5 @@
 import configparser
+
 import pushover
 
 config = configparser.ConfigParser()
@@ -17,6 +18,7 @@ class Client:
                 if result == self.wrapped_class:
                     return self
                 return result
+
             return hooked
         else:
             return orig_attr

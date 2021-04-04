@@ -1,6 +1,7 @@
 import configparser
-from coinspot import CoinSpot
+
 import pushover_wrapper as pushover
+from coinspot import CoinSpot
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -31,4 +32,3 @@ try:
 except KeyError:
     print("No AUD funds")
     exit()
-
