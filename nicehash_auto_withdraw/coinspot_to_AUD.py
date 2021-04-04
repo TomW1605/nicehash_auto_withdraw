@@ -1,4 +1,5 @@
 import configparser
+import time
 
 import pushover_wrapper as pushover
 from coinspot import CoinSpot
@@ -25,13 +26,15 @@ pushover_client.send_message("CoinSpot confirmed balance: "+str(balance)+" BTC",
 
 # Get a quote on buying a billion BTC, with estimation of timeframe
 quote = client.quotesell('BTC', balance)['quote']
-pushover_client.send_message("CoinSpot quoted "+str(quote)+"AUD per BTC for "+str(balance)+" BTC", title="CoinSpot Quote")
+pushover_client.send_message("CoinSpot quoted "+str(quote)+" AUD/BTC for "+str(balance)+" BTC", title="CoinSpot Quote")
 
 if config['coinspot'].getboolean('dry_run'):
     pushover_client.send_message("Dry run complete. No actions have been taken", title="CoinSpot Dry Run Complete")
     exit(0)
 
 client.sell('BTC', balance, quote)
+
+time.sleep(30)
 
 try:
     aud_balance = float(client.balances()['balance']['aud'])
