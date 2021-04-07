@@ -61,9 +61,15 @@ if nh_balance > config['nicehash'].getfloat('transfer_limit'):
 else:
     profitability = private_api.get_mining_rigs()['totalProfitability']
     btc_remaining = config['nicehash'].getfloat('transfer_limit')-nh_balance
-    days_remaining = math.ceil(btc_remaining/profitability)
+
+    if profitability == 0:
+        days_remaining = config['nicehash']["retry_interval"]
+    else:
+        days_remaining = math.ceil(btc_remaining/profitability)
+
     if days_remaining > 30:
         days_remaining = config['nicehash']["retry_interval"]
+
     pushover_client.send_message("Transfer failed, insufficient funds. Retrying in "+str(days_remaining)+" days", title="Nicehash Transfer Failed")
     next_run = days_remaining
 
