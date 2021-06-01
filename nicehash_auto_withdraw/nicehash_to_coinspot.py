@@ -74,8 +74,14 @@ else:
     next_run = days_remaining
 
 if success:
-    atd.at("python3 /nicehash_auto_withdraw/coinspot_to_AUD.py", datetime.datetime.now()+datetime.timedelta(hours=24))
-    pushover_client.send_message("Scheduled coinspot_to_AUD.py to run in 24 hours", title="Schedule coinspot_to_AUD.py")
+    atd.at("python3 /nicehash_auto_withdraw/coinspot_to_AUD.py", datetime.datetime.now()+datetime.timedelta(hours=12))
+    pushover_client.send_message("Scheduled coinspot_to_AUD.py to run in 12 hours", title="Schedule coinspot_to_AUD.py")
+
+    next_run_date = (datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)+datetime.timedelta(days=32)).replace(day=1)
+    atd.at("python3 /nicehash_auto_withdraw/nicehash_to_coinspot.py", next_run_date)
+    pushover_client.send_message("Scheduled nicehash_to_coinspot.py to run on "+str(next_run_date), title="Schedule nicehash_to_coinspot.py")
+
+    atd.atrm(backup_job)
 else:
     next_run_date = (datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)+datetime.timedelta(days=next_run))
     if next_run_date.month > datetime.datetime.now().month:
